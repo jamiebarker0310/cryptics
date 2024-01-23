@@ -66,14 +66,14 @@ def main():
     i = 0
     for word in WORDS:
         if i % 1000 == 0:
-            print i, "/", len(WORDS)
+            print(i, "/", len(WORDS))
         i += 1
         word = word.lower()
-        syns = map(cleanup, list(synonyms(word)))
+        syns = list(map(cleanup, list(synonyms(word))))
         all_synonyms[word] = syns
         # if syns:
         #     print word, syns
-    print "loaded sowpods"
+    print("loaded sowpods")
 
     with open('raw_data/bigrams.txt', 'r') as f:
         for line in f.readlines():
@@ -83,17 +83,17 @@ def main():
             if re.search(r'[^a-zA-Z0-9 -_]', words) or re.search(r'0[A-Z]+\.0', words):
                 continue
             words = cleanup(words)
-            all_synonyms.setdefault(words, []).extend(map(cleanup, list(synonyms(words))))
-    print "loaded bigrams"
+            all_synonyms.setdefault(words, []).extend(list(map(cleanup, list(synonyms(words)))))
+    print("loaded bigrams")
 
     with open('raw_data/abbreviations.json', 'r') as f:
         abbrevs = json.load(f)
 
-    for s, vals in abbrevs.items():
+    for s, vals in list(abbrevs.items()):
         all_synonyms.setdefault(s, []).extend(vals)
         for v in vals:
             all_synonyms.setdefault(cleanup(v), []).append(cleanup(s))
-    print "loaded abbreviations"
+    print("loaded abbreviations")
 
     with open('raw_data/American.csv', 'rb') as f:
         american = csv.reader(f)
@@ -103,11 +103,11 @@ def main():
                 continue
             all_synonyms.setdefault(a, []).append(c)
             all_synonyms.setdefault(c, []).append(a)
-    print "loaded American.csv"
+    print("loaded American.csv")
 
-    for k, v in all_synonyms.items():
+    for k, v in list(all_synonyms.items()):
         all_synonyms[k] = list(set(v))
-    print 'removed duplicates'
+    print('removed duplicates')
 
     with open('data/synonyms.msgpack', 'w') as f:
         msgpack.dump(all_synonyms, f)

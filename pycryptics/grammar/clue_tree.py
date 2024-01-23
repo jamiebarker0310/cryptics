@@ -44,7 +44,7 @@ class ClueTree(Tree):
         child_answers = [ClueTree.get_answers(c) for c in self]
         for i, s in enumerate(child_answers):
             if isinstance(s, dict):
-                child_answers[i] = s.keys()
+                child_answers[i] = list(s.keys())
         if self.node.name == 'top':
             arg_sets = self.make_top_arg_sets(child_answers)
         else:
@@ -106,7 +106,7 @@ class ClueTree(Tree):
         result = "(" + self.node.name + " "
         arg_answers = self.answers[answer]
         for i, child in enumerate(self):
-            if isinstance(child, basestring):
+            if isinstance(child, str):
                 result += '"' + child + '"'
             else:
                 result += child.derivation(arg_answers[i])
@@ -129,7 +129,7 @@ class ClueTree(Tree):
                 return ""
         indicator = None
         for i, child in enumerate(self):
-            if isinstance(child, basestring):
+            if isinstance(child, str):
                 continue
             if child.node.is_indicator:
             # if child.node.endswith('_'):

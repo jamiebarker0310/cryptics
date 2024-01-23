@@ -7,7 +7,7 @@ import readline
 def rlinput(prompt, prefill=''):
     readline.set_startup_hook(lambda: readline.insert_text(prefill))
     try:
-        return raw_input(prompt)
+        return input(prompt)
     finally:
         readline.set_startup_hook()
 
@@ -17,7 +17,7 @@ with CrypticClueSolver() as solver:
 
     while True:
         p.print_clue_state()
-        action = raw_input("Action? [q]uit [s]ave or enter a clue ID (e.g. 12a): ")
+        action = input("Action? [q]uit [s]ave or enter a clue ID (e.g. 12a): ")
         if action == "q":
             break
         elif action == "s":
@@ -26,8 +26,8 @@ with CrypticClueSolver() as solver:
             clue = p.find_clue(action.strip())
             if clue is not None:
                 while True:
-                    print "Current clue:", p.encode_clue_for_solver(clue)
-                    action = raw_input("Clue action? [s]olve [b]ack [g]uess [e]dit: ")
+                    print("Current clue:", p.encode_clue_for_solver(clue))
+                    action = input("Clue action? [s]olve [b]ack [g]uess [e]dit: ")
                     if action == "s":
                         solver.setup(p.encode_clue_for_solver(clue))
                         try:
@@ -36,14 +36,14 @@ with CrypticClueSolver() as solver:
                             ans_derivations = dict()
                             ndx = 0
                             for a in answers:
-                                if a.answer not in ans_strings.values():
+                                if a.answer not in list(ans_strings.values()):
                                     ans_strings[ndx] = a.answer
                                     ndx += 1
                                 ans_derivations.setdefault(a.answer, []).append(a)
-                            for i in range(min(15, len(ans_strings.keys()))):
-                                print i, ans_strings[i]
+                            for i in range(min(15, len(list(ans_strings.keys())))):
+                                print(i, ans_strings[i])
                             while True:
-                                action = raw_input("[a]ccept/[d]erivations [number], or leave blank to cancel: ").strip()
+                                action = input("[a]ccept/[d]erivations [number], or leave blank to cancel: ").strip()
                                 if action != "":
                                     try:
                                         verb, noun = action.split(' ')
@@ -53,7 +53,7 @@ with CrypticClueSolver() as solver:
                                             break
                                         if verb == "d":
                                             for d in ans_derivations[ans_strings[choice]]:
-                                                print d
+                                                print(d)
                                     except ValueError:
                                         pass
                         except KeyboardInterrupt:
@@ -61,7 +61,7 @@ with CrypticClueSolver() as solver:
                     elif action == "b":
                         break
                     elif action == "g":
-                        ans = raw_input("Proposed answer: ")
+                        ans = input("Proposed answer: ")
                         p.set_clue_fill(clue, ans)
                         break
                     elif action == "e":

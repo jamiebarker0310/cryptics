@@ -1,4 +1,4 @@
-from __future__ import division
+
 from nltk.parse.earleychart import IncrementalChart
 from nltk.parse.chart import LeafEdge, Tree
 from pycryptics.grammar.clue_tree import ClueTree

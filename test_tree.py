@@ -14,9 +14,9 @@ g = grammar.ContextFreeGrammar(top, prods)
 parser = parse.EarleyChartParser(g, trace=True, chart_class=MemoChart)
 
 p = parser.nbest_parse(['foo'])
-print p
-print p[0][0][0]
-print p[1][0][0]
-print "==", p[0][0][0] == p[1][0][0]
-print "is", p[0][0][0] is p[1][0][0]
-print isinstance(p[0], ClueTree)
+print(p)
+print(p[0][0][0])
+print(p[1][0][0])
+print("==", p[0][0][0] == p[1][0][0])
+print("is", p[0][0][0] is p[1][0][0])
+print(isinstance(p[0], ClueTree))

@@ -2,6 +2,7 @@
 import logging
 import string
 import operator
+from functools import reduce
 
 header_format = '''<
              H 11s        xH
@@ -122,7 +123,7 @@ class Puzzle:
         self.author = s.read_string()
         self.copyright = s.read_string()
 
-        self.clues = [s.read_string() for i in xrange(0, numclues)]
+        self.clues = [s.read_string() for i in range(0, numclues)]
         self.notes = s.read_string()
 
         ext_cksum = {}
@@ -146,7 +147,7 @@ class Puzzle:
             raise PuzzleFormatError('header checksum does not match')
         if cksum_magic != self.magic_cksum():
             raise PuzzleFormatError('magic checksum does not match')
-        for code, cksum_ext in ext_cksum.items():
+        for code, cksum_ext in list(ext_cksum.items()):
             if cksum_ext != data_cksum(self.extensions[code]):
                 raise PuzzleFormatError('extension %s checksum does not match' % code)
 
@@ -164,7 +165,7 @@ class Puzzle:
     def tostring(self):
         s = PuzzleBuffer()
         # commit any changes from helpers
-        for h in self.helpers.values():
+        for h in list(self.helpers.values()):
             if 'save' in dir(h):
                 h.save()
 
@@ -200,7 +201,7 @@ class Puzzle:
                 s.pack(extension_header_format, code, len(data), data_cksum(data))
                 s.write(data + '\0')
 
-        for code, data in ext.items():
+        for code, data in list(ext.items()):
             s.pack(extension_header_format, code, len(data), data_cksum(data))
             s.write(data + '\0')
 
@@ -305,7 +306,7 @@ class Puzzle:
         ans = ans.replace('_', '').upper().strip()
         sq = self.occupied_squares(clue)
         if len(ans) != len(sq):
-            print "Cannot fill in", ans, "for clue", clue, "Lengths don't match"
+            print("Cannot fill in", ans, "for clue", clue, "Lengths don't match")
             return
         for i, x in enumerate(sq):
             self.grid[x] = ans[i]
@@ -315,10 +316,10 @@ class Puzzle:
 
     def occupied_squares(self, clue):
         if clue['dir'] == 'a':
-            return range(clue['cell'], clue['cell'] + clue['len'])
+            return list(range(clue['cell'], clue['cell'] + clue['len']))
         else:
             assert clue['dir'] == 'd'
-            return range(clue['cell'], clue['cell'] + self.width * clue['len'], self.width)
+            return list(range(clue['cell'], clue['cell'] + self.width * clue['len'], self.width))
 
     def intersecting_clues(self, clue):
         target_squares = self.occupied_squares(clue)
@@ -339,12 +340,12 @@ class Puzzle:
         return result
 
     def print_clue_state(self):
-        print "Across:"
+        print("Across:")
         for clue in self.clue_numbering().across:
-            print str(clue['num']) + clue['dir'], self.encode_clue_for_solver(clue)
-        print "Down:"
+            print(str(clue['num']) + clue['dir'], self.encode_clue_for_solver(clue))
+        print("Down:")
         for clue in self.clue_numbering().down:
-            print str(clue['num']) + clue['dir'], self.encode_clue_for_solver(clue)
+            print(str(clue['num']) + clue['dir'], self.encode_clue_for_solver(clue))
 
     def find_clue(self, id):
         for clue in self.clue_numbering().across + self.clue_numbering().down:
@@ -384,7 +385,7 @@ class PuzzleBuffer:
     def read_until(self, c):
         start = self.pos
         self.seek_to(c, 1) # read past
-        return unicode(self.data[start:self.pos-1], self.enc)
+        return str(self.data[start:self.pos-1], self.enc)
 
     def seek(self, pos):
         self.pos = pos
@@ -437,7 +438,7 @@ class DefaultClueNumbering:
         d = []
         c = 0
         n = 1
-        for i in xrange(0, len(grid)):
+        for i in range(0, len(grid)):
             if not is_blacksquare(grid[i]):
                 lastc = c
                 if (self.col(i) == 0 or is_blacksquare(grid[i - 1])) and self.len_across(i) > 1:
@@ -461,13 +462,13 @@ class DefaultClueNumbering:
         return index / self.width
 
     def len_across(self, index):
-        for c in xrange(0, self.width - self.col(index)):
+        for c in range(0, self.width - self.col(index)):
             if is_blacksquare(self.grid[index + c]):
                 return c
         return c + 1
 
     def len_down(self, index):
-        for c in xrange(0, self.height - self.row(index)):
+        for c in range(0, self.height - self.row(index)):
             if is_blacksquare(self.grid[index + c*self.width]):
                 return c
         return c + 1
@@ -477,8 +478,8 @@ class Rebus:
         self.puzzle = puzzle
         # parse rebus data
         self.table = parse_bytes(self.puzzle.extensions.get(Extensions.Rebus, ''))
-        self.solutions = dict(map(lambda p: (int(p[0]), p[1]), parse_dict(self.puzzle.extensions.get(Extensions.RebusSolutions, '')).items()))
-        self.fill = dict(map(lambda p: (int(p[0]), p[1]), parse_dict(self.puzzle.extensions.get(Extensions.RebusFill, '')).items()))
+        self.solutions = dict([(int(p[0]), p[1]) for p in list(parse_dict(self.puzzle.extensions.get(Extensions.RebusSolutions, '')).items())])
+        self.fill = dict([(int(p[0]), p[1]) for p in list(parse_dict(self.puzzle.extensions.get(Extensions.RebusFill, '')).items())])
 
     def has_rebus(self):
         return Extensions.Rebus in self.puzzle.extensions
@@ -598,7 +599,7 @@ def unshift(s, key):
 
 def shuffle(s):
     mid = len(s) / 2
-    return ''.join(reduce(operator.add, zip(s[mid:], s[:mid]))) + (s[-1] if len(s) % 2 else '')
+    return ''.join(reduce(operator.add, list(zip(s[mid:], s[:mid])))) + (s[-1] if len(s) % 2 else '')
 
 def unshuffle(s):
     return s[1::2] + s[::2]
@@ -613,7 +614,7 @@ def restore(s, t):
     'XYZ.ABC'
     """
     t = (c for c in t)
-    return ''.join(t.next() if not is_blacksquare(c) else c for c in s)
+    return ''.join(next(t) if not is_blacksquare(c) else c for c in s)
 
 def is_blacksquare(c):
     return c == BLACKSQUARE
@@ -634,4 +635,4 @@ def parse_dict(s):
     return dict(p.split(':') for p in s.split(';') if ':' in p)
 
 def dict_to_string(d):
-    return ';'.join(':'.join(map(str, [k,v])) for k,v in d.items()) + ';'
+    return ';'.join(':'.join(map(str, [k,v])) for k,v in list(d.items())) + ';'

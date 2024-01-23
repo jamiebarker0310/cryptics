@@ -67,7 +67,7 @@ for r in additional_clue_rules:
     production_rules[top].append([d] + r)
 
 base_prods = []
-for n, rules in production_rules.items():
+for n, rules in list(production_rules.items()):
     for r in rules:
         base_prods.append(gram.Production(n, r))
 

@@ -1,4 +1,4 @@
-from __future__ import division
+
 from pycryptics.utils.synonyms import SYNONYMS
 from pycryptics.utils.ngrams import NGRAMS
 from pycryptics.utils.transforms import split_words
@@ -61,7 +61,7 @@ def anagrams(words, constraints):
     active_set = {"": letter_count}
     for i in range(len(word)):
         new_active_set = dict()
-        for partial, lc in active_set.items():
+        for partial, lc in list(active_set.items()):
             # print "starting from:", partial
             for l in lc:
                 # print "adding letter:", l
@@ -106,5 +106,5 @@ def bigram_filter(answers, constraints):
 
 if __name__ == '__main__':
     from pycryptics.parse_and_solve import constraints
-    print reverse(['soda'], constraints([], [4,], ""))
+    print(reverse(['soda'], constraints([], [4,], "")))
 

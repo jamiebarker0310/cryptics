@@ -1,4 +1,4 @@
-from __future__ import division
+
 from pycryptics.utils.language import semantic_similarity
 from pycryptics.grammar.clue_parse import generate_clues
 from pycryptics.utils.phrasings import phrasings
@@ -58,11 +58,11 @@ class ClueSolutions:
         self.answer_derivations = dict()
         for ann in anns:
             self.answer_derivations.setdefault(ann.answer, []).append(ann)
-        for k, v in self.answer_derivations.items():
+        for k, v in list(self.answer_derivations.items()):
             self.answer_scores[k] = max(a.similarity for a in v)
 
     def sorted_answers(self):
-        return sorted([(v, k) for k, v in self.answer_scores.items()], reverse=True)
+        return sorted([(v, k) for k, v in list(self.answer_scores.items())], reverse=True)
 
 
 def arg_filter(arg_set):
@@ -106,7 +106,7 @@ class CrypticClueSolver(object):
             constraints = constraints._replace(phrases=p)
             # constraints = Constraints(p, lengths, pattern, answer)
             if not self.quiet:
-                print p
+                print(p)
             for ann_ans in self.solve_constraints(constraints):
                 self.answers_with_clues.append(ann_ans)
         if len(self.answers_with_clues) == 0 and constraints.pattern.replace('.', '') != "":
@@ -175,6 +175,6 @@ if __name__ == '__main__':
     with CrypticClueSolver() as solver:
         solver.setup(clue)
         answers = solver.run()
-        print answers[0].long_derivation()
+        print(answers[0].long_derivation())
         # for a in answers[:5]: print a
 

@@ -1,4 +1,4 @@
-from __future__ import division
+
 import re
 
 def semantic_similarity(foo, bar):
@@ -32,11 +32,11 @@ class ClueSolutions:
         self.answer_derivations = dict()
         for ann in anns:
             self.answer_derivations.setdefault(ann.answer, []).append(ann)
-        for k, v in self.answer_derivations.items():
+        for k, v in list(self.answer_derivations.items()):
             self.answer_scores[k] = max(a.similarity for a in v)
 
     def sorted_answers(self):
-        return sorted([(v, k) for k, v in self.answer_scores.items()], reverse=True)
+        return sorted([(v, k) for k, v in list(self.answer_scores.items())], reverse=True)
 
 
 class CrypticClueSolver(object):
@@ -88,17 +88,17 @@ class CrypticClueSolver(object):
         self.answers_with_clues = []
 
         self.go_proc.stdin.write("# %s %s\n" % (lengths, pattern))
-        print self.go_proc.stdout.readline()
+        print(self.go_proc.stdout.readline())
         for p in all_phrasings:
             if not self.running:
                 break
-            print p
+            print(p)
             for ann_ans in self.solve_phrasing(p):
                 self.answers_with_clues.append(ann_ans)
             self.finished_phrasing_clues = 0
             self.finished_phrasings += 1
         if len(self.answers_with_clues) == 0 and pattern.replace('.', '') != "":
-            self.answers_with_clues = [PatternAnswer(x, all_phrasings[0]) for x in SYNONYMS.keys() if matches_pattern(x, pattern, lengths)]
+            self.answers_with_clues = [PatternAnswer(x, all_phrasings[0]) for x in list(SYNONYMS.keys()) if matches_pattern(x, pattern, lengths)]
         self.answers_with_clues.sort(reverse=True)
         return self.answers_with_clues
 

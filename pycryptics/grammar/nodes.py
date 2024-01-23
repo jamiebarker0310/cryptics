@@ -52,7 +52,7 @@ class TopNode(BaseNode):
     @staticmethod
     def long_derivation(non_empty_args):
         if len(non_empty_args) > 1:
-            return "\nCombine " + comma_list(map(str.upper, non_empty_args))
+            return "\nCombine " + comma_list(list(map(str.upper, non_empty_args)))
         else:
             return ""
 
