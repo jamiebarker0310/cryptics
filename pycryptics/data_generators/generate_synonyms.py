@@ -4,6 +4,8 @@ from nltk.corpus import wordnet as wn
 # from nltk.tag import pos_tag
 import json
 import csv
+
+from tqdm import tqdm
 import en
 
 
@@ -14,7 +16,7 @@ def synonyms(word):
         all_synsets = synset.similar_tos()
         all_synsets.append(synset)
         for similar_synset in all_synsets:
-            for lemma in similar_synset.lemmas:
+            for lemma in similar_synset.lemmas():
                 candidate = correct_form(lemma.name, word).lower()
                 if candidate != word and candidate != "" and not any(c in word.split('_') for c in candidate.split('_')) and not any(c in candidate.split('_') for c in word.split('_')):
                     answers.add(candidate)
@@ -22,6 +24,7 @@ def synonyms(word):
 
 
 def correct_form(ans, word):
+    ans = ans()
     if "_" in ans:
         return ans
     # print "correcting", ans, "to match", word
@@ -45,7 +48,7 @@ def cleanup(clue):
     clue = re.sub('-', '_', clue)
     clue = re.sub(r'\ +', ' ', clue)
     clue = re.sub(r'[^a-zA-Z0-9\ _]', '', clue)
-    clue = clue.encode('ascii', 'ignore')
+    # clue = clue.encode('ascii', 'ignore')
     clue = clue.lower().strip().strip('_')
     return clue
 
@@ -56,7 +59,7 @@ def main():
     # with open('raw_data/sowpods.txt', 'r') as f:
     #     WORDS = set(w.strip() for w in f.readlines())
 
-    with open('raw_data/UKACD.txt', 'r') as f:
+    with open('raw_data/UKACD.txt', 'r', encoding="unicode-escape") as f:
         while True:
             line = f.readline()
             if line[0] == "-":
@@ -64,9 +67,7 @@ def main():
         WORDS = set(map(cleanup, f.readlines()))
 
     i = 0
-    for word in WORDS:
-        if i % 1000 == 0:
-            print(i, "/", len(WORDS))
+    for word in tqdm(WORDS):
         i += 1
         word = word.lower()
         syns = list(map(cleanup, list(synonyms(word))))
